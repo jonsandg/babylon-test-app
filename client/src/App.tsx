@@ -1,10 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
+import { GameScene } from './components/Game';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">Test</header>
+    <div className="bg-slate-400 h-full pt-10">
+      <div className="bg-slate-50 w-2/3 h-64 mx-auto">
+        <GameScene />
+      </div>
     </div>
   );
 }
