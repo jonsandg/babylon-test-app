@@ -1,107 +1,94 @@
 import { Server, Socket } from 'socket.io';
 import http from 'http';
+import {
+  ClientToServerSocketIOEvents,
+  PlayerData,
+  ServerToClientSocketIOEvents,
+} from './api/types';
+
+const CLIENT_HOSTNAMES = (process.env.CLIENT_HOSTNAME || '').split(' ');
 
 const server = http.createServer();
-const io = new Server(server, {
+const io = new Server<
+  ClientToServerSocketIOEvents,
+  ServerToClientSocketIOEvents
+>(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: CLIENT_HOSTNAMES,
   },
 });
 
-interface Position {
-  x: number;
-  y: number;
-  z: number;
+interface PlayerConnection {
+  socket: Socket<ClientToServerSocketIOEvents, ServerToClientSocketIOEvents>;
+  player: PlayerData;
 }
 
-interface Rotation {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
-interface Player {
-  socket: Socket;
-  name: string;
-  position: Position;
-  rotation: Rotation;
-}
-
-interface PositionData {
-  position: Position;
-  rotation: Rotation;
-}
-
-let players: Player[] = [];
+let connections: PlayerConnection[] = [];
 
 io.sockets.on('connection', socket => {
   socket.emit(
-    'players/list',
-    players.map(p => ({
-      id: p.socket.id,
-      name: p.name,
-      position: p.position,
-      rotation: p.rotation,
-    }))
+    'players/all',
+    connections.map(p => p.player)
   );
 
-  const newPlayer: Player = {
+  const newPlayer: PlayerConnection = {
     socket,
-    name: 'lolol',
-    position: {
-      x: 0,
-      y: 1.5,
-      z: 0,
-    },
-    rotation: {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 0,
+    player: {
+      id: socket.id,
+      name: 'lolol',
+      object: {
+        position: {
+          x: 0,
+          y: 1.5,
+          z: 0,
+        },
+        rotation: {
+          x: 0,
+          y: 0,
+          z: 0,
+          w: 0,
+        },
+      },
     },
   };
 
-  players.push(newPlayer);
+  connections.push(newPlayer);
 
-  players.forEach(player => {
+  connections.forEach(player => {
     if (newPlayer.socket.id !== player.socket.id) {
-      player.socket.emit('players/new', {
-        id: socket.id,
-        name: newPlayer.name,
-        position: newPlayer.position,
-        rotation: newPlayer.rotation,
-      });
+      player.socket.emit('players/new', newPlayer.player);
     }
   });
 
-  socket.on('position', ({ position, rotation }: PositionData) => {
-    console.log(rotation);
-    players.map(player => {
-      if (player.socket === socket) {
-        return { ...player, position, rotation };
+  socket.on('update', modelData => {
+    //console.log(rotation);
+    connections = connections.map(connection => {
+      if (connection.socket === socket) {
+        return {
+          ...connection,
+          player: {
+            ...connection.player,
+            object: modelData,
+          },
+        };
       } else {
-        player.socket.emit('players/position', {
+        connection.socket.emit('players/update', {
           id: socket.id,
-          position,
-          rotation,
+          object: modelData,
         });
-        return player;
+        return connection;
       }
     });
   });
 
   socket.on('disconnect', () => {
-    players = players.filter(p => p.socket.id !== socket.id);
-    players.forEach(player => {
-      player.socket.emit('players/remove', {
+    connections = connections.filter(p => p.socket.id !== socket.id);
+    connections.forEach(player => {
+      player.socket.emit('players/removed', {
         id: socket.id,
       });
     });
   });
 });
-
-/************************************************************************************
- *                              Export Server
- ***********************************************************************************/
 
 export default server;

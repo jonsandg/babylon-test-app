@@ -15,23 +15,24 @@ import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 import { Scene, Engine, useBeforeRender } from 'react-babylonjs';
 
 import * as CANNON from 'cannon';
-import { useKeyPress } from '../../hooks/useKeyPress';
 import { Player } from './Player';
-import { Ball } from './Ball';
-import { IPlayer, IPosition, IRotation } from './types';
+import { BallControlled } from './Ball';
+import { PlayerData, Position, Rotation } from '@backend/types';
 window.CANNON = CANNON;
 
 const gravityVector = new Vector3(0, -9.81, 0);
 
 export type GameSceneProps = {
-  players: IPlayer[];
-  onPlayerPositionChange?(position: IPosition, rotation: IRotation): void;
+  players: PlayerData[];
+  onPlayerPositionChange?(position: Position, rotation: Rotation): void;
 };
 
 const GameScene: React.FC<GameSceneProps> = ({
   players,
   onPlayerPositionChange,
 }) => {
+  let playerRef = useRef<Nullable<Mesh>>();
+
   return (
     <div className="App">
       <Engine
@@ -40,18 +41,6 @@ const GameScene: React.FC<GameSceneProps> = ({
         canvasId="sample-canvas"
       >
         <Scene enablePhysics={[gravityVector, new CannonJSPlugin()]}>
-          <arcRotateCamera
-            name="arc"
-            target={new Vector3(0, 1, 0)}
-            alpha={-Math.PI / 2}
-            beta={0.5 + Math.PI / 4}
-            radius={4}
-            minZ={0.001}
-            wheelPrecision={50}
-            lowerRadiusLimit={8}
-            upperRadiusLimit={20}
-            upperBetaLimit={Math.PI / 2}
-          />
           <hemisphericLight
             name="hemi"
             direction={new Vector3(0, -1, 0)}
@@ -76,9 +65,13 @@ const GameScene: React.FC<GameSceneProps> = ({
               depthScale={100}
             />
           </directionalLight>
-          <Player onPositionChange={onPlayerPositionChange} />
+          <Player ref={playerRef} onPositionChange={onPlayerPositionChange} />
           {players.map(p => (
-            <Ball key={p.id} position={p.position} rotation={p.rotation} />
+            <BallControlled
+              key={p.id}
+              position={p.object.position}
+              rotation={p.object.rotation}
+            />
           ))}
           <ground
             name="ground1"

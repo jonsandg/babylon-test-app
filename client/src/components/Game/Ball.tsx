@@ -1,61 +1,78 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Quaternion } from '@babylonjs/core';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { Nullable } from '@babylonjs/core/types';
 import { PhysicsImpostor } from '@babylonjs/core/Physics/physicsImpostor';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { FresnelParameters } from '@babylonjs/core/Materials/fresnelParameters';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
-import { IPosition } from './types';
+import { Position, Rotation } from '@backend/types';
+
+import amiga from './assets/textures/amiga.jpg';
+import { useBeforeRender } from 'react-babylonjs';
 
 interface BallProps {
-  position?: IPosition;
-  rotation?: IPosition;
+  position?: Position;
+  rotation?: Rotation;
+  physicsEnabled?: boolean;
+  children?: React.ReactNode;
 }
 
-export const Ball = forwardRef<Nullable<Mesh> | undefined, BallProps>(
-  ({ position, rotation }, ref) => {
+const Ball = forwardRef<Nullable<Mesh> | undefined, BallProps>(
+  ({ position, rotation, physicsEnabled, children }, ref) => {
+    const textPlaneRef = useRef<Mesh>();
+    const sphereRef = useRef<Mesh>();
+
+    useBeforeRender(scene => {
+      if (textPlaneRef.current && ref) {
+        const spherePosition = ref;
+      }
+    });
+
+    const sphereProps = {
+      ref,
+      name: 'sphere1',
+      diameter: 2,
+      segments: 16,
+      position: position
+        ? new Vector3(position.x, position.y, position.z)
+        : new Vector3(0, 1.5, 0),
+      ...(rotation && {
+        rotationQuaternion: new Quaternion(
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w
+        ),
+      }),
+    };
+
     return (
-      <sphere
-        ref={ref}
-        name="sphere1"
-        diameter={2}
-        segments={16}
-        position={
-          position
-            ? new Vector3(position.x, position.y, position.z)
-            : new Vector3(0, 1.5, 0)
-        }
-        rotation={
-          rotation
-            ? new Vector3(rotation.x, rotation.y, rotation.z)
-            : new Vector3(0, 0, 0)
-        }
-      >
-        {!position && (
-          <physicsImpostor
-            type={PhysicsImpostor.SphereImpostor}
-            _options={{ mass: 1, restitution: 0.9 }}
-          />
-        )}
-        <standardMaterial
-          name="material1"
-          specularPower={16}
-          diffuseColor={Color3.Black()}
-          emissiveColor={new Color3(0.5, 0.5, 0.5)}
-          reflectionFresnelParameters={FresnelParameters.Parse({
-            isEnabled: true,
-            leftColor: [1, 1, 1],
-            rightColor: [0, 0, 0],
-            bias: 0.1,
-            power: 1,
-          })}
-        />
+      <>
+        <sphere {...sphereProps}>
+          {physicsEnabled && (
+            <physicsImpostor
+              type={PhysicsImpostor.SphereImpostor}
+              _options={{ mass: 1, restitution: 0.9 }}
+            />
+          )}
+          <standardMaterial
+            name="material1"
+            specularPower={16}
+            //diffuseColor={Color3.Red()}
+          >
+            <texture url={amiga} assignTo="diffuseTexture" />
+          </standardMaterial>
+          {children}
+        </sphere>
+        {/*
         <plane
           name="dialog"
           size={2}
-          position={new Vector3(0, 1.5, 0)}
+          position={Vector3.Up()}
           sideOrientation={Mesh.BACKSIDE}
+          ref={textPlaneRef}
         >
           <advancedDynamicTexture
             name="dialogTexture"
@@ -87,7 +104,27 @@ export const Ball = forwardRef<Nullable<Mesh> | undefined, BallProps>(
             </rectangle>
           </advancedDynamicTexture>
         </plane>
-      </sphere>
+        */}
+      </>
     );
   }
 );
+
+interface BallWithPhysicsProps {
+  children?: React.ReactNode;
+}
+
+export const BallWithPhysics = forwardRef<
+  Nullable<Mesh> | undefined,
+  BallWithPhysicsProps
+>((props, ref) => <Ball ref={ref} physicsEnabled {...props} />);
+
+interface BallControlledProps {
+  position: Position;
+  rotation: Rotation;
+}
+
+export const BallControlled: React.FC<BallControlledProps> = ({
+  position,
+  rotation,
+}) => <Ball position={position} rotation={rotation} />;
