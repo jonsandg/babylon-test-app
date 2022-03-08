@@ -11,7 +11,7 @@ import {
 } from '@backend/types';
 
 const API_ENDPOINT =
-  process.env.REACT_APP_API_ENDPOINT || 'http:localhost:3001';
+  process.env.REACT_APP_API_ENDPOINT || 'http://localhost:3001';
 
 export const useApi = () => {
   const [players, setPlayers] = useState<PlayerData[]>([]);

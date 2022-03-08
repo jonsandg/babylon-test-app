@@ -10,3 +10,7 @@ const serverStartMsg = 'Socket.io server started on port: ',
 server.listen(port, () => {
   logger.info(serverStartMsg + port);
 });
+
+process.on('SIGINT', function () {
+  process.exit();
+});
