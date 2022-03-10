@@ -1,0 +1,32 @@
+name: Build & Deploy over ssh
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd babylon-test-app
+            git pull
+            COMMIT=$(git rev-parse --short HEAD)
+            cd client
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            yarn install
+            yarn build
+            cd ../server
+            docker build . -t gameserver
+            docker tag gameserver:latest gameserver:$COMMIT
+            docker stop gameserver_container
+            docker rm gameserver_container
+            docker run --name=gameserver_container --restart=always -p 3000:3000 -e CLIENT_HOSTNAME=${{ secrets.HOST }} -d gameserver:latest
