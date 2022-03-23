@@ -10,7 +10,7 @@ import { Nullable } from '@babylonjs/core/types';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { PhysicsImpostor } from '@babylonjs/core/Physics/physicsImpostor';
 
-import { Scene, Engine } from 'react-babylonjs';
+import { Scene, Engine, Skybox } from 'react-babylonjs';
 
 import * as CANNON from 'cannon';
 import { PlayerCharacter } from './PlayerCharacter';
@@ -51,6 +51,7 @@ const GameScene: React.FC<GameSceneProps> = ({
             position={new Vector3(0, 10, -20)}
             setTarget={[Vector3.Zero()]}
           /> */}
+          <Skybox rootUrl="/textures/TropicalSunnyDay" size={1000} />
           <hemisphericLight
             name="hemi"
             direction={new Vector3(0, -1, 0)}
@@ -93,8 +94,8 @@ const GameScene: React.FC<GameSceneProps> = ({
           ))}
           <ground
             name="ground1"
-            width={100}
-            height={100}
+            width={1000}
+            height={1000}
             subdivisions={2}
             receiveShadows={true}
           >
