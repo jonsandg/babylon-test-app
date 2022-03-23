@@ -9,26 +9,13 @@ import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Nullable } from '@babylonjs/core/types';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { PhysicsImpostor } from '@babylonjs/core/Physics/physicsImpostor';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { FresnelParameters } from '@babylonjs/core/Materials/fresnelParameters';
-import { Texture } from '@babylonjs/core/Materials/Textures/texture';
-import { SceneLoader } from '@babylonjs/core/';
 
-import {
-  Scene,
-  Engine,
-  useBeforeRender,
-  AssetManagerContextProvider,
-} from 'react-babylonjs';
+import { Scene, Engine } from 'react-babylonjs';
 
 import * as CANNON from 'cannon';
-import { Player } from './Player';
 import { PlayerCharacter } from './PlayerCharacter';
 import { Character } from './Character';
-import { Character2 } from './Character2';
-import { BallControlled } from './Ball';
 import { PlayerData, Position, Rotation } from '@backend/types';
-import { Test } from './Test';
 import { LoadModels, ModelContainers } from './LoadModels';
 window.CANNON = CANNON;
 
@@ -36,7 +23,11 @@ const gravityVector = new Vector3(0, -9.81, 0);
 
 export type GameSceneProps = {
   players: PlayerData[];
-  onPlayerPositionChange?(position: Position, rotation: Rotation): void;
+  onPlayerPositionChange?(
+    position: Position,
+    rotation: Rotation,
+    animation: string
+  ): void;
 };
 
 const GameScene: React.FC<GameSceneProps> = ({
@@ -85,35 +76,19 @@ const GameScene: React.FC<GameSceneProps> = ({
             />
           </directionalLight>
           <LoadModels onModelsLoaded={setModels} />
-          <>
-            <PlayerCharacter
-              container={models.claire}
-              onPositionChange={onPlayerPositionChange}
-            />
-          </>
-
-          {/*<Player ref={playerRef} onPositionChange={onPlayerPositionChange} />
-          
-          <Character model="claire" id="player2" />
-
-          
-          <AssetManagerContextProvider>
-            <Suspense fallback={null}>
-              {chars.map(c => (
-                <Test {...c} />
-              ))}
-            </Suspense>
-          </AssetManagerContextProvider>
-
-          */}
+          <PlayerCharacter
+            container={models.claire}
+            onPositionChange={onPlayerPositionChange}
+          />
 
           {players.map(p => (
-            <Character2
+            <Character
               container={models.claire}
               key={p.id}
               id={p.id}
               position={p.object.position}
               rotation={p.object.rotation}
+              animation={p.object.animation}
             />
           ))}
           <ground

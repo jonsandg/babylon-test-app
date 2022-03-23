@@ -1,29 +1,22 @@
-import React, {
-  forwardRef,
-  useRef,
-  useState,
-  MutableRefObject,
-  useEffect,
-} from 'react';
+import React, { forwardRef, useRef, useState, useEffect } from 'react';
 
 import { Nullable } from '@babylonjs/core/types';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import {
-  AssetContainer,
-  FollowCamera,
-  Quaternion,
-  UniversalCamera,
-} from '@babylonjs/core';
+import { AssetContainer, Quaternion, UniversalCamera } from '@babylonjs/core';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { useBeforeRender } from 'react-babylonjs';
 
 import { useKeyPress } from '../../hooks/useKeyPress';
 
-import { Character2 } from './Character2';
+import { Character } from './Character';
 import { Position, Rotation } from '@backend/types';
 
 interface PlayerProps {
-  onPositionChange?(position: Position, rotation: Rotation): any;
+  onPositionChange?(
+    position: Position,
+    rotation: Rotation,
+    animation: string
+  ): any;
   container: AssetContainer;
 }
 
@@ -52,14 +45,6 @@ export const PlayerCharacter = forwardRef<
 
   const [animation, setAnimation] = useState('Idle');
 
-  /*
-    useEffect(() => {
-      if (cameraRef.current && mySphereRef.current) {
-        cameraRef.current.lockedTarget = mySphereRef.current;
-      }
-    }, [cameraRef, mySphereRef]);
-    */
-
   useBeforeRender(scene => {
     if (nodeRef.current) {
       const node = nodeRef.current;
@@ -68,38 +53,40 @@ export const PlayerCharacter = forwardRef<
         node.rotate(Vector3.Zero(), 0);
       }
 
-      const PLAYER_SPEED = 7;
-      const PLAYER_ROTATION_SPEED = 0.6;
+      const PLAYER_SPEED = 35;
+      const PLAYER_SPEED_BACKWARD = PLAYER_SPEED * 0.7;
+      const PLAYER_ROTATION_SPEED = 4;
 
       const dt = scene.getEngine().getDeltaTime();
 
       const adjustedPlayerSpeed = (PLAYER_SPEED * dt) / 1000;
+      const adjustedPlayerSpeedBackward = (PLAYER_SPEED_BACKWARD * dt) / 1000;
       const adjustedPlayerRotationSpeed = (PLAYER_ROTATION_SPEED * dt) / 1000;
 
       if (wIsPressed) {
         node.position = node.position.add(
-          node.forward.scaleInPlace(adjustedPlayerSpeed * dt)
+          node.forward.scaleInPlace(adjustedPlayerSpeed)
         );
       }
 
       if (aIsPressed) {
-        node.rotate(Vector3.Up(), -adjustedPlayerRotationSpeed * dt);
+        node.rotate(Vector3.Up(), -adjustedPlayerRotationSpeed);
       }
 
       if (sIsPressed) {
         node.position = node.position.add(
-          node.forward.scaleInPlace(-adjustedPlayerSpeed * dt)
+          node.forward.scaleInPlace(-adjustedPlayerSpeedBackward)
         );
       }
 
       if (dIsPressed) {
-        node.rotate(Vector3.Up(), adjustedPlayerRotationSpeed * dt);
+        node.rotate(Vector3.Up(), adjustedPlayerRotationSpeed);
       }
 
       const pos = getVectorData(node.getAbsolutePosition());
       const rot = getQuaternionData(node.rotationQuaternion!);
 
-      onPositionChange && rot && onPositionChange(pos, rot);
+      onPositionChange && rot && onPositionChange(pos, rot, animation);
     }
   });
 
@@ -125,7 +112,7 @@ export const PlayerCharacter = forwardRef<
 
   return (
     <transformNode name="player" ref={nodeRef}>
-      <Character2 container={container} animation={animation} id="player" />
+      <Character container={container} animation={animation} id="player" />
       <universalCamera
         name="FollowCam"
         ref={cameraRef}

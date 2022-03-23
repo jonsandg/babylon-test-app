@@ -45,14 +45,18 @@ export const useApi = () => {
     });
   }, []);
 
-  const updatePlayerObject = throttle((pos: Position, rot: Rotation) => {
-    if (socket.current) {
-      socket.current.emit('update', {
-        position: pos,
-        rotation: rot,
-      });
-    }
-  }, 10);
+  const updatePlayerObject = throttle(
+    (pos: Position, rot: Rotation, animation: string) => {
+      if (socket.current) {
+        socket.current.emit('update', {
+          position: pos,
+          rotation: rot,
+          animation,
+        });
+      }
+    },
+    10
+  );
 
   return [players, updatePlayerObject] as const;
 };

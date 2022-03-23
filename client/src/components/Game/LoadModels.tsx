@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { SceneLoader, AssetContainer } from '@babylonjs/core/';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 
 import claire from './assets/characters/claire.gltf';
 import { useScene } from 'react-babylonjs';
@@ -24,7 +23,6 @@ export interface ModelContainers {
 
 const LoadModels: React.FC<LoadModelsProps> = ({ onModelsLoaded }) => {
   const scene = useScene();
-  const [modelContainers, setModelContainers] = useState<AssetContainer[]>([]);
 
   useEffect(() => {
     const models = [claire].map(getUrlAndFileName);

@@ -50,6 +50,7 @@ io.sockets.on('connection', socket => {
           z: 0,
           w: 0,
         },
+        animation: 'Idle',
       },
     },
   };

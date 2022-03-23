@@ -6,8 +6,6 @@ import { GameScene } from './Scene';
 export const Game = () => {
   const [players, updatePlayerObject] = useApi();
 
-  console.log(players);
-
   return (
     <GameScene players={players} onPlayerPositionChange={updatePlayerObject} />
   );
