@@ -13,7 +13,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ILoadedModel, Model, useBeforeRender } from 'react-babylonjs';
 
 export interface CharacterProps {
   container: AssetContainer | undefined;
@@ -66,16 +65,58 @@ export const Character: React.FC<CharacterProps> = ({
 
       mesh.scaling = new Vector3(0.1, 0.1, 0.1);
       mesh.rotate(Vector3.Up(), Math.PI);
-      mesh.position = nodeRef.current!.position;
+
+      mesh.position = position
+        ? new Vector3(position.x, position.y, position.z)
+        : Vector3.Zero();
+
+      if (rotation) {
+        mesh.rotationQuaternion = new Quaternion(
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w
+        );
+      }
+
+      /*
       mesh.setParent(nodeRef.current!);
+
+      
+      mesh.position = nodeRef.current!.position;
+      
       mesh.position = Vector3.Zero();
+      */
 
       model.current = instances;
       setAnimation();
+
+      return () => {
+        mesh.dispose();
+      };
     }
   }, [container]);
 
   useEffect(setAnimation, [animation]);
+
+  useEffect(() => {
+    if (position && model.current) {
+      model.current.rootNodes[0].position = new Vector3(
+        position.x,
+        position.y,
+        position.z
+      );
+    }
+
+    if (rotation && model.current) {
+      model.current.rootNodes[0].rotationQuaternion = new Quaternion(
+        rotation.x,
+        rotation.y,
+        rotation.z,
+        rotation.w
+      );
+    }
+  }, [position, rotation]);
 
   return (
     <transformNode

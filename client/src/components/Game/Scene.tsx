@@ -71,7 +71,7 @@ const GameScene: React.FC<GameSceneProps> = ({
               useBlurExponentialShadowMap={true}
               blurKernel={32}
               darkness={0.8}
-              shadowCasters={['sphere1', 'dialog']}
+              shadowCasters={['player', ...players.map(p => p.id)]}
               forceBackFacesOnly={true}
               depthScale={100}
             />
@@ -96,7 +96,7 @@ const GameScene: React.FC<GameSceneProps> = ({
             name="ground1"
             width={1000}
             height={1000}
-            subdivisions={2}
+            subdivisions={10}
             receiveShadows={true}
           >
             <physicsImpostor

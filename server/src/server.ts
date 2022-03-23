@@ -64,7 +64,6 @@ io.sockets.on('connection', socket => {
   });
 
   socket.on('update', modelData => {
-    //console.log(rotation);
     connections = connections.map(connection => {
       if (connection.socket === socket) {
         return {

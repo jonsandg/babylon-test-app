@@ -110,9 +110,24 @@ export const PlayerCharacter = forwardRef<
     }
   }, [wIsPressed, sIsPressed, spaceIsPressed]);
 
+  let pos, rot;
+
+  if (nodeRef.current) {
+    const node = nodeRef.current;
+    pos = getVectorData(node.getAbsolutePosition());
+    if (node.rotationQuaternion)
+      rot = getQuaternionData(node.rotationQuaternion);
+  }
+
   return (
     <transformNode name="player" ref={nodeRef}>
-      <Character container={container} animation={animation} id="player" />
+      <Character
+        position={pos}
+        rotation={rot}
+        container={container}
+        animation={animation}
+        id="player"
+      />
       <universalCamera
         name="FollowCam"
         ref={cameraRef}
