@@ -7,6 +7,7 @@ export interface PlayerData {
 export interface ModelData {
   position: Position;
   rotation: Rotation;
+  animation: string;
 }
 
 export interface Rotation {

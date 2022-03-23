@@ -25,10 +25,11 @@ import * as CANNON from 'cannon';
 import { Player } from './Player';
 import { PlayerCharacter } from './PlayerCharacter';
 import { Character } from './Character';
+import { Character2 } from './Character2';
 import { BallControlled } from './Ball';
 import { PlayerData, Position, Rotation } from '@backend/types';
 import { Test } from './Test';
-import { ContainerTest } from './ContainerTest';
+import { LoadModels, ModelContainers } from './LoadModels';
 window.CANNON = CANNON;
 
 const gravityVector = new Vector3(0, -9.81, 0);
@@ -44,18 +45,7 @@ const GameScene: React.FC<GameSceneProps> = ({
 }) => {
   let playerRef = useRef<Nullable<Mesh>>();
 
-  const [chars, setChars] = useState([
-    { x: 0, name: 'claire', animation: 'Idle' },
-  ]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setChars(chars => [
-        ...chars,
-        { x: -5, name: 'claire2', animation: 'RunForward' },
-      ]);
-    }, 1000);
-  }, []);
+  const [models, setModels] = useState<ModelContainers>({});
 
   return (
     <div className="App">
@@ -65,11 +55,11 @@ const GameScene: React.FC<GameSceneProps> = ({
         canvasId="sample-canvas"
       >
         <Scene enablePhysics={[gravityVector, new CannonJSPlugin()]}>
-          <freeCamera
+          {/* <freeCamera
             name="camera1"
             position={new Vector3(0, 10, -20)}
             setTarget={[Vector3.Zero()]}
-          />
+          /> */}
           <hemisphericLight
             name="hemi"
             direction={new Vector3(0, -1, 0)}
@@ -94,9 +84,16 @@ const GameScene: React.FC<GameSceneProps> = ({
               depthScale={100}
             />
           </directionalLight>
-          <ContainerTest />
+          <LoadModels onModelsLoaded={setModels} />
+          <>
+            <PlayerCharacter
+              container={models.claire}
+              onPositionChange={onPlayerPositionChange}
+            />
+          </>
+
           {/*<Player ref={playerRef} onPositionChange={onPlayerPositionChange} />
-          <PlayerCharacter />
+          
           <Character model="claire" id="player2" />
 
           
@@ -111,8 +108,10 @@ const GameScene: React.FC<GameSceneProps> = ({
           */}
 
           {players.map(p => (
-            <BallControlled
+            <Character2
+              container={models.claire}
               key={p.id}
+              id={p.id}
               position={p.object.position}
               rotation={p.object.rotation}
             />

@@ -26,6 +26,8 @@ interface PlayerConnection {
 let connections: PlayerConnection[] = [];
 
 io.sockets.on('connection', socket => {
+  console.log('player connected');
+
   socket.emit(
     'players/all',
     connections.map(p => p.player)

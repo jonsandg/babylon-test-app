@@ -8,17 +8,23 @@ import React, {
 
 import { Nullable } from '@babylonjs/core/types';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { FollowCamera, Quaternion, UniversalCamera } from '@babylonjs/core';
+import {
+  AssetContainer,
+  FollowCamera,
+  Quaternion,
+  UniversalCamera,
+} from '@babylonjs/core';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { useBeforeRender } from 'react-babylonjs';
 
 import { useKeyPress } from '../../hooks/useKeyPress';
 
-import { Character } from './Character';
+import { Character2 } from './Character2';
 import { Position, Rotation } from '@backend/types';
 
 interface PlayerProps {
   onPositionChange?(position: Position, rotation: Rotation): any;
+  container: AssetContainer;
 }
 
 const getVectorData = (vector: Vector3) => {
@@ -34,7 +40,7 @@ const getQuaternionData = (q: Quaternion) => {
 export const PlayerCharacter = forwardRef<
   Nullable<Mesh> | undefined,
   PlayerProps
->(({ onPositionChange }, sphereRef) => {
+>(({ onPositionChange, container }, sphereRef) => {
   const nodeRef = useRef<Nullable<Mesh>>();
   const cameraRef = useRef<UniversalCamera>();
 
@@ -62,7 +68,7 @@ export const PlayerCharacter = forwardRef<
         node.rotate(Vector3.Zero(), 0);
       }
 
-      const PLAYER_SPEED = 10;
+      const PLAYER_SPEED = 7;
       const PLAYER_ROTATION_SPEED = 0.6;
 
       const dt = scene.getEngine().getDeltaTime();
@@ -93,7 +99,7 @@ export const PlayerCharacter = forwardRef<
       const pos = getVectorData(node.getAbsolutePosition());
       const rot = getQuaternionData(node.rotationQuaternion!);
 
-      //onPositionChange && rot && onPositionChange(pos, rot);
+      onPositionChange && rot && onPositionChange(pos, rot);
     }
   });
 
@@ -119,7 +125,7 @@ export const PlayerCharacter = forwardRef<
 
   return (
     <transformNode name="player" ref={nodeRef}>
-      <Character model="claire" animation={animation} id="player" />
+      <Character2 container={container} animation={animation} id="player" />
       <universalCamera
         name="FollowCam"
         ref={cameraRef}
