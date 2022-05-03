@@ -2,7 +2,12 @@ import React, { forwardRef, useRef, useState, useEffect } from 'react';
 
 import { Nullable } from '@babylonjs/core/types';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { AssetContainer, Quaternion, UniversalCamera } from '@babylonjs/core';
+import {
+  AssetContainer,
+  Quaternion,
+  TransformNode,
+  UniversalCamera,
+} from '@babylonjs/core';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { useBeforeRender } from 'react-babylonjs';
 
@@ -35,6 +40,7 @@ export const PlayerCharacter = forwardRef<
   PlayerProps
 >(({ onPositionChange, container }, sphereRef) => {
   const nodeRef = useRef<Nullable<Mesh>>();
+  const charRef = useRef<Nullable<TransformNode>>();
   const cameraRef = useRef<UniversalCamera>();
 
   const wIsPressed = useKeyPress('w');
@@ -46,8 +52,8 @@ export const PlayerCharacter = forwardRef<
   const [animation, setAnimation] = useState('Idle');
 
   useBeforeRender(scene => {
-    if (nodeRef.current) {
-      const node = nodeRef.current;
+    if (charRef.current) {
+      const node = charRef.current;
 
       if (!node.rotationQuaternion) {
         node.rotate(Vector3.Zero(), 0);
@@ -86,6 +92,12 @@ export const PlayerCharacter = forwardRef<
       const pos = getVectorData(node.getAbsolutePosition());
       const rot = getQuaternionData(node.rotationQuaternion!);
 
+      if (cameraRef.current) {
+        const camera = cameraRef.current;
+        // camera.position = node.forward;
+        camera.target = node.position.add(Vector3.Up().scale(10));
+      }
+
       onPositionChange && rot && onPositionChange(pos, rot, animation);
     }
   });
@@ -110,6 +122,7 @@ export const PlayerCharacter = forwardRef<
     }
   }, [wIsPressed, sIsPressed, spaceIsPressed]);
 
+  /*
   let pos, rot;
 
   if (nodeRef.current) {
@@ -118,20 +131,22 @@ export const PlayerCharacter = forwardRef<
     if (node.rotationQuaternion)
       rot = getQuaternionData(node.rotationQuaternion);
   }
+  */
 
   return (
     <transformNode name="player" ref={nodeRef}>
       <Character
-        position={pos}
-        rotation={rot}
         container={container}
         animation={animation}
         id="player"
+        onMounted={mesh => {
+          charRef.current = mesh;
+        }}
       />
       <universalCamera
         name="FollowCam"
         ref={cameraRef}
-        position={new Vector3(0, 15, -40)}
+        position={new Vector3(0, 15, -50)}
         target={Vector3.Zero()}
       />
     </transformNode>

@@ -1,6 +1,7 @@
 import {
   AssetContainer,
   InstantiatedEntries,
+  Mesh,
   Quaternion,
   TransformNode,
   Vector3,
@@ -20,15 +21,13 @@ export interface CharacterProps {
   id: string;
   position?: Position;
   rotation?: Rotation;
+  onMounted?(mesh: TransformNode): void;
 }
 
-export const Character: React.FC<CharacterProps> = ({
-  animation = 'Idle',
-  id,
-  container,
-  position,
-  rotation,
-}) => {
+export const Character: React.FC<CharacterProps> = forwardRef<
+  Mesh,
+  CharacterProps
+>(({ animation = 'Idle', id, container, position, rotation, onMounted }) => {
   const model = useRef<InstantiatedEntries>();
   const nodeRef = useRef<TransformNode>();
 
@@ -89,6 +88,11 @@ export const Character: React.FC<CharacterProps> = ({
       */
 
       model.current = instances;
+
+      if (onMounted) {
+        onMounted(mesh);
+      }
+
       setAnimation();
 
       return () => {
@@ -134,4 +138,4 @@ export const Character: React.FC<CharacterProps> = ({
       }
     ></transformNode>
   );
-};
+});
