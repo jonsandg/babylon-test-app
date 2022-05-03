@@ -63,6 +63,7 @@
     "build.ts"
   ],
   "dependencies": {
+    "@google-cloud/agones-sdk": "^1.22.0",
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.0",
     "http-status-codes": "^2.2.0",

@@ -1,4 +1,6 @@
 import 'dotenv-flow/config';
+// @ts-ignore
+import AgonesSDK from '@google-cloud/agones-sdk';
 import logger from 'jet-logger';
 import server from './server';
 
@@ -6,9 +8,16 @@ import server from './server';
 const serverStartMsg = 'Socket.io server started on port: ',
   port = process.env.PORT || 3001;
 
+const agonesSDK = new AgonesSDK();
+
 // Start server
-server.listen(port, () => {
+server.listen(port, async () => {
   logger.info(serverStartMsg + port);
+
+  await agonesSDK.connect();
+  logger.info('Connected to Agones SDK server');
+
+  await agonesSDK.ready();
 });
 
 process.on('SIGINT', function () {
