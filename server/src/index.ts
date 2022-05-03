@@ -18,6 +18,15 @@ server.listen(port, async () => {
   logger.info('Connected to Agones SDK server');
 
   await agonesSDK.ready();
+
+  function sendHealthPing() {
+    setTimeout(() => {
+      agonesSDK.health();
+      sendHealthPing();
+    }, 4000);
+  }
+
+  sendHealthPing();
 });
 
 process.on('SIGINT', function () {
