@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 16
       - run: cd client && yarn
-      - run: cd client && yarn build
+      - run: cd client && CI=false yarn build
       - uses: bacongobbler/azure-blob-storage-upload@main
         with:
           source_dir: 'client/build'
