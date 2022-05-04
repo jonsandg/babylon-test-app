@@ -1,0 +1,27 @@
+apiVersion: 'agones.dev/v1'
+kind: GameServer
+metadata:
+  generateName: 'babylon-game-server-'
+spec:
+  ports:
+    - name: default
+      portPolicy: Dynamic
+      containerPort: 3000
+      protocol: TCP
+  health:
+    # Number of seconds after the container has started before health check is initiated. Defaults to 5 seconds
+    initialDelaySeconds: 5
+    # If the `Health()` function doesn't get called at least once every period (seconds), then
+    # the game server is not healthy. Defaults to 5
+    periodSeconds: 5
+    # Minimum consecutive failures for the health probe to be considered failed after having succeeded.
+    # Defaults to 3. Minimum value is 1
+    failureThreshold: 3
+  template:
+    spec:
+      containers:
+        - name: babylon-game-server
+          image: jonathansandgren/cgopdev:latest
+          env:
+            - name: CLIENT_HOSTNAME
+              value: 'http://localhost:3000 https://cgopdevjonathan.z1.web.core.windows.net/'

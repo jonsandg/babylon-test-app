@@ -7,6 +7,8 @@ jobs:
   client:
     name: Build and deploy client
     runs-on: ubuntu-latest
+    env:
+      REACT_APP_API_ENDPOINT: ${{ secrets.REACT_APP_API_ENDPOINT }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
