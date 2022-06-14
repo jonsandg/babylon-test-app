@@ -64,8 +64,11 @@
   ],
   "dependencies": {
     "@google-cloud/agones-sdk": "^1.22.0",
+    "@kubernetes/client-node": "^0.16.3",
+    "axios": "^0.27.2",
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.0",
+    "fetch": "^1.1.0",
     "http-status-codes": "^2.2.0",
     "jet-logger": "^1.1.5",
     "module-alias": "^2.2.2",

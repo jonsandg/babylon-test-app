@@ -1,0 +1,2 @@
+agones:
+  featureGates: 'PlayerTracking=true'

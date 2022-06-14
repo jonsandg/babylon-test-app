@@ -3,6 +3,7 @@ kind: GameServer
 metadata:
   generateName: 'babylon-game-server-'
 spec:
+  container: babylon-game-server
   ports:
     - name: default
       portPolicy: Dynamic
@@ -17,6 +18,9 @@ spec:
     # Minimum consecutive failures for the health probe to be considered failed after having succeeded.
     # Defaults to 3. Minimum value is 1
     failureThreshold: 3
+  players:
+    # set this GameServer's initial player capacity to 10
+    initialCapacity: 10
   template:
     spec:
       containers:
@@ -24,4 +28,10 @@ spec:
           image: jonathansandgren/cgopdev:latest
           env:
             - name: CLIENT_HOSTNAME
-              value: 'http://localhost:3000 https://cgopdevjonathan.z1.web.core.windows.net/'
+              value: 'http://localhost:3000 https://cgopdevjonathan.z1.web.core.windows.net/ http://cgopdevjonathan.z1.web.core.windows.net/'
+        - name: kubectl
+          image: buoyantio/kubectl:v1.8.5
+          args:
+            - 'proxy'
+            - '-p'
+            - '8001'

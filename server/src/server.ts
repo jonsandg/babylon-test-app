@@ -5,6 +5,8 @@ import {
   PlayerData,
   ServerToClientSocketIOEvents,
 } from './api/types';
+import { getServers } from './getServers';
+import { getAgonesClient } from './agones';
 
 const CLIENT_HOSTNAMES = (process.env.CLIENT_HOSTNAME || '').split(' ');
 
@@ -25,8 +27,11 @@ interface PlayerConnection {
 
 let connections: PlayerConnection[] = [];
 
-io.sockets.on('connection', socket => {
+io.sockets.on('connection', async socket => {
   console.log('player connected');
+
+  const agonesSDK = await getAgonesClient();
+  agonesSDK.alpha.playerConnect(socket.id);
 
   socket.emit(
     'players/all',
@@ -90,7 +95,19 @@ io.sockets.on('connection', socket => {
         id: socket.id,
       });
     });
+    agonesSDK.alpha.playerDisconnect(socket.id);
   });
 });
+
+function getGameServers() {
+  setTimeout(async () => {
+    const servers = await getServers();
+    //console.log(servers);
+    io.emit('serversList', servers);
+    getGameServers();
+  }, 2000);
+}
+
+getGameServers();
 
 export default server;

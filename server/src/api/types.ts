@@ -36,11 +36,21 @@ interface PlayerRemovedData {
   id: string;
 }
 
+export interface Server {
+  address: string;
+  port: number;
+  players: {
+    capacity: number;
+    count: number;
+  };
+}
+
 export interface ServerToClientSocketIOEvents {
   'players/all': (players: PlayerData[]) => void;
   'players/new': (player: PlayerData) => void;
   'players/removed': (data: PlayerRemovedData) => void;
   'players/update': (data: PlayerUpdateData) => void;
+  serversList: (data: Server[]) => void;
 }
 
 export interface ClientToServerSocketIOEvents {
